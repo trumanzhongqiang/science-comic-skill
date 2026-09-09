@@ -29,10 +29,11 @@ science-comic-skill/
 ├── science-comic-skill.skill  # 打包文件：skill/ 目录的 zip，可直接加载
 └── skill/
     └── science-comic-skill/
-        ├── SKILL.md           # 核心 agent 执行指令（工作流主文件）
+        ├── SKILL.md           # 核心 agent 执行指令（工作流主文件 + 归因式红线）
         └── references/        # 支撑素材
             ├── character-card-template.md   # 角色卡模板与锚定描述词规范
-            └── storyboard-template.md       # 分镜脚本模板与示例
+            ├── storyboard-template.md       # 分镜脚本模板与示例
+            └── quality-checklist.md         # 发布前「装读者四查」质检清单
 ```
 
 ## 工作方式
