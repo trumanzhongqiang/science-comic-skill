@@ -1,6 +1,6 @@
 ---
 name: science-comic-skill
-description: "给自媒体一键生成科普漫画：选题理解、事实核查、分镜脚本、角色卡锚定一致性、逐格出图、气泡留空后期填字。触发词：'启动科普漫画'、'科普漫画'、相关自然语言请求。"
+description: "给自媒体一键生成科普漫画：选题理解、事实核查、分镜脚本、角色卡锚定一致性、逐格出图、气泡留空后期填字。触发词：'启动科普漫画'、'科普漫画'、'science comic'、'把 XX 做成漫画'，及任何想把科普选题变成漫画的自然语言请求。"
 version: 1.1.0
 allowed-tools: Bash, Read, Write, Edit
 compatibility: Windows/macOS/Linux. Requires WorkBuddy.
