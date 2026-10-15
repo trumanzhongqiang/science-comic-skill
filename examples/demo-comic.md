@@ -1,5 +1,8 @@
 # 演示：从一个选题到一格出图提示词
 
+> 这是文字链路示例，没有真实出图。要看测评成品，打开 [`samples/lung-cancer-quit/preview.html`](samples/lung-cancer-quit/preview.html)。
+
+
 > 本演示完整呈现 science-comic-skill 的中间产物链路：选题 → 知识卡 → 角色卡锚定词 → 分镜脚本（节选）→ 单格出图提示词。
 > 示例选题：「为什么天空是蓝色的」。
 
@@ -27,10 +30,12 @@
 | 服饰 | 红色连帽衫 + 米色围裙，胸口白色盐粒图案 |
 | 画风 | 明快扁平卡通，粗描边，二头身 Q 版 |
 
-锚定描述词（之后每一格原样嵌入）：
+锚定描述词（抽象风格级 + 具象形态级，之后每一格原样嵌入）：
 
 ```
-chibi 2-head-tall cartoon character, thick outlines, flat bright colors,
+chibi 2-head-tall cartoon, thick outlines, flat bright colors,
+extremely large round head, tiny stubby body, very short thick limbs,
+warm beige skin #F6D7B8,
 round face, short black bob haircut, big eyes,
 wearing a tomato-red hoodie (#FF6347) and cream apron (#FFF8E7),
 a tiny white salt-grain emblem on the chest,
@@ -44,28 +49,30 @@ cheerful curious expression, clean vector style
 ## P1｜全景｜情绪：疑问
 - 画面：小海躺在草地上指着天空，小盐站在旁边。天空大面积留白，顶部预留空白标题位。
 - 旁白：（留空，后期填「天空为什么是蓝色的？」）
-- 气泡：小海：「万里无云时，天为啥是蓝的？」
+- 气泡：小海：「天为啥是蓝的？」
 - 知识点：K1（现象）
 
 ## P3｜中景｜情绪：演示
 - 画面：小盐用手把一束光「拆」成七色，空中留白气泡。
-- 气泡：小盐：「它一进来，就被空气里的小颗粒拦住了。」
+- 气泡：小盐：「小颗粒把光拦住了。」
 - 知识点：K3（瑞利散射）
 ```
 
-**纪律可见**：每格只讲透一个知识点；每格标注对应知识卡编号，保证事实有出处；气泡 ≤20 字口语化；标题与旁白位置留空待后期填字。
+**纪律可见**：每格只讲透一个知识点；每格标注对应知识卡编号，保证事实有出处；气泡是一句能听懂的口语，解释和数字放文字卡；标题与旁白位置留空待后期填字。
 
 ## 4. 单格出图提示词（阶段 5，P3 示例）
 
 ```
-chibi 2-head-tall cartoon character, thick outlines, flat bright colors,
+chibi 2-head-tall cartoon, thick outlines, flat bright colors,
+extremely large round head, tiny stubby body, very short thick limbs,
+warm beige skin #F6D7B8,
 round face, short black bob haircut, big eyes,
 wearing a tomato-red hoodie (#FF6347) and cream apron (#FFF8E7),
 a tiny white salt-grain emblem on the chest,
 holding a wand-like stirring stick,
 cheerful curious expression, clean vector style,
 splitting a beam of sunlight into a rainbow of seven colors with both hands,
-medium shot, plain light background, a blank white speech bubble above
+medium shot, plain light background, a large wide blank white speech bubble, inner width at least 40% of the panel, above
 ```
 
 **纪律可见**：锚定词逐字嵌入在最前；多角色同框时角色名前重复关键特征防混淆；气泡写 `blank white speech bubble`——模型只画空白气泡，一个中文字都不许渲染。

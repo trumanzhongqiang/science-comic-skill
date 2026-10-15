@@ -21,10 +21,12 @@
 
 ## 锚定描述词（Anchor Prompt）
 
-把角色卡压缩成一段 60~100 词的英文描述，作为出图提示词的固定前缀：
+把角色卡压缩成一段英文描述，作为出图提示词的固定前缀。必须同时有抽象风格级和具象形态级；只写「chibi 2-head-tall」时，模型守不住比例。
 
 ```
-[画风] chibi 2-head-tall cartoon character, thick outlines, flat bright colors,
+[抽象风格] chibi 2-head-tall cartoon, thick outlines, flat bright colors,
+[具象形态] extremely large round head, tiny stubby body, very short thick limbs,
+[肤色] warm beige skin #F6D7B8,
 [外观] round face, short black bob haircut, big eyes,
 [配色] wearing a tomato-red hoodie (#FF6347) and cream apron (#FFF8E7),
 [标志] a tiny white salt-grain emblem on the chest,
@@ -34,7 +36,7 @@
 
 使用规则：
 
-1. **逐字复用**：每一格、每一个系列期数的提示词都嵌入同一段锚定词，不改动措辞
+1. **两级逐字复用**：每一格都嵌入同一段锚定词，不改措辞。重画时优先加强具象形态级和肤色色值，不要只重复抽象风格级
 2. **多角色同框**：在每个角色名前重复其关键特征，例如「the tomato-red-hoodie explainer」和「the blue-overalls asker」，防止模型混淆
 3. **配角简化**：配角锚定词控制在 30 词以内，避免提示词过长稀释主角特征
 4. **变更即换卡**：用户要求改造型时，更新角色卡并明确告知「自本格起启用新锚定词」，同格内不混用新旧描述
@@ -46,7 +48,7 @@
 - [ ] 复用既有角色卡，未擅自修改外观/配色
 - [ ] 画风描述词与首期一致
 - [ ] 新增配角已补建角色卡并加入锚定词库
-- [ ] 新一期出图后抽查主角与首期形象是否漂移，漂移则重画
+- [ ] 新一期出图后抽查主角与首期形象是否漂移；漂移则加强具象形态级后整格重画
 
 ## 反面示例
 

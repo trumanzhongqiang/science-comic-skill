@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>测评预览 · 戒烟这件事</title>
+<style>
+  :root { --teal:#2E9BB5; --ink:#2B2B2B; --grey:#6E7680; --line:#E2E6EA; --bg:#F7F9FA; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:"Microsoft YaHei","PingFang SC",sans-serif; line-height:1.7; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 36px 20px 72px; }
+  header { text-align:center; margin-bottom: 28px; }
+  .tag { display:inline-block; background:var(--teal); color:#fff; border-radius:999px; padding:4px 14px; font-size:14px; }
+  h1 { margin: 12px 0 6px; font-size: 36px; }
+  header p, .hint { color: var(--grey); }
+  section { background:#fff; border:1px solid var(--line); border-radius:16px; padding:22px 24px; margin-bottom:18px; }
+  h2 { margin:0 0 14px; font-size:20px; border-left:5px solid var(--teal); padding-left:10px; }
+  img.wide { width:100%; border-radius:12px; border:1px solid var(--line); }
+  img.strip { width:100%; max-width:420px; display:block; margin:0 auto; border-radius:12px; border:1px solid var(--line); }
+  table { width:100%; border-collapse:collapse; font-size:14.5px; }
+  th, td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { background:#F0F6F8; }
+  a { color:#1F7186; }
+  .warn { background:#FDF3F2; border-left:5px solid #C94A3D; padding:12px 14px; border-radius:10px; margin-bottom:18px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="tag">实测样本 · 不是效果图演示稿</span>
+    <h1>戒烟这件事</h1>
+    <p>science-comic-skill v1.1.0 · 6 格竖版条漫 · 2026-10-14</p>
+  </header>
+  <div class="warn">科普仅供参考，不替代医生诊断。本页图片是那次运行的真实成品。当前 skill 已是 v1.2.0，气泡不再按「最多 5 个字」来写，本样本没有按新规则重跑。</div>
+  <section>
+    <h2>六格填字成图</h2>
+    <img class="wide" src="preview/panels-contact.jpg" alt="六格填字成图一览">
+    <p class="hint">单格原文件：<a href="output/panel-01-text.png">P1</a> <a href="output/panel-02-text.png">P2</a> <a href="output/panel-03-text.png">P3</a> <a href="output/panel-04-text.png">P4</a> <a href="output/panel-05-text.png">P5</a> <a href="output/panel-06-text.png">P6</a></p>
+  </section>
+  <section>
+    <h2>出图留白，文字后期再填</h2>
+    <img class="wide" src="preview/before-after-p01.jpg" alt="第 1 格空白气泡与填字对照">
+    <p class="hint">左图是模型出图，气泡里没有字。右图是合成结果。六格原图在 <a href="panels/panel-01.png">panels/</a>。</p>
+  </section>
+  <section>
+    <h2>竖版条漫</h2>
+    <img class="strip" src="preview/comic-w640.jpg" alt="戒烟这件事竖版条漫预览">
+    <p class="hint">预览宽 640。发布用原图 <a href="output/comic-final.png">output/comic-final.png</a>（1080×6382）。</p>
+  </section>
+  <section>
+    <h2>这次跑出来的数</h2>
+    <table>
+      <tr><th>出图调用</th><td>11 次，合格 6 张，废片率 45%</td></tr>
+      <tr><th>废片原因</th><td>文件名撞车、并行丢图、体型漂移、按钮语义画反、圆牌数量画少</td></tr>
+      <tr><th>检索</th><td>7 次；3 处权威口径冲突，知识卡里写了取舍</td></tr>
+      <tr><th>文字</th><td>合成 2 轮。第一轮折行把标点拆到下一行</td></tr>
+      <tr><th>四查</th><td>知识、角色（重画后）、文字、节奏均为通过</td></tr>
+    </table>
+    <p>过程文件：<a href="knowledge-card.md">知识卡</a> · <a href="characters.md">角色卡</a> · <a href="storyboard.md">分镜</a> · <a href="EVALUATION.md">完整测评说明</a></p>
+  </section>
+</div>
+</body>
+</html>

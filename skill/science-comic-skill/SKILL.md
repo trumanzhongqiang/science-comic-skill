@@ -1,9 +1,9 @@
 ---
 name: science-comic-skill
-description: "One-click science comic generation for self-media creators: topic understanding, fact-checking, storyboard scripting, character-card consistency anchoring, panel-by-panel image generation, blank-bubble text compositing. Triggers on: '启动科普漫画', '科普漫画', 'science comic', or any request to turn a science topic into a comic strip."
-version: 1.1.0
+description: "One-click science comic generation for self-media creators: topic understanding, fact-checking with source-conflict rules, two-level character anchoring, storyboard scripting, serial panel generation, and scripted blank-bubble Chinese text compositing. Triggers on: '启动科普漫画', '科普漫画', 'science comic', or any request to turn a science topic into a comic strip."
+version: 1.2.0
 allowed-tools: Bash, Read, Write, Edit
-compatibility: Windows/macOS/Linux. Requires WorkBuddy.
+compatibility: Windows/macOS/Linux. Requires WorkBuddy. Text compositing needs Python 3.9+, Pillow, and numpy.
 metadata:
   emoji: "🎨"
 ---
@@ -19,6 +19,16 @@ metadata:
 
 ## 工作流程
 
+### 阶段 0：成本与产物预告
+
+出图前用一句话告知，不要展开成报价单：
+
+- 计划格数，以及按约 45% 废片率预留的生成次数（约 `格数 × 2`，向上取整）
+- 文字合成走本地脚本，不另耗图像额度
+- 将交付：知识卡、角色卡、分镜、逐格图、合成条漫、四查交付说明
+
+用户改口就改计划。未确认格数与画风前，不要出图。
+
 ### 阶段 1：选题理解与参数确认
 
 1. 提炼选题的核心知识点（2~5 个），规划叙事节奏：**悬念开场 → 层层拆解 → 总结升华**
@@ -31,55 +41,81 @@ metadata:
 1. 对每个核心知识点检索核对权威来源（百科、教科书、官方科普平台、论文）
 2. 数字、单位、因果关系必须精确；产出**知识卡**：每个知识点一句话结论 + 核对来源 + 一句话类比/可视化建议
 3. **缺口命名**：检索不到依据的说法，不猜不编、不写成「科学家认为」——点名缺什么、为什么缺，交用户决定降级为类比还是删去。核查不通过的知识点不进脚本
+4. **来源冲突处理**：多个权威来源口径不一致时——
+   - 取**单一可核验来源**，不混用数字（取 WHO 就不掺另一机构的数字）
+   - 在知识卡中**点名冲突**并写明取舍理由
+   - 检查所取说法与同一机构的**其他文件是否自洽**
+   - 无法判定时，选**保守表述**（「显著下降但不归零」优于「完全等同」）
 
 ### 阶段 3：角色卡与画风锚定
 
 1. 生成**角色卡**：外观、配色（具体色值或标准色名）、服饰、标志性道具、性格关键词；画风描述词（线条、上色方式、比例）
-2. 把角色卡压缩成一段**锚定描述词**（anchor prompt），之后每一格的图像提示词都必须原样嵌入该锚定词
-3. 同一系列/连载复用同一张角色卡，只在用户明确要求时调整
+2. 锚定词必须包含**两级**，之后每一格原样嵌入：
+   - 抽象风格级：`chibi 2-head-tall cartoon, thick outlines, flat bright colors`
+   - 具象形态级：`extremely large round head, tiny stubby body, very short thick limbs`，外加肤色色值（如 `warm beige skin #F3D2B5`）
+   - 只写抽象级时，模型守不住比例，会出现体型、肤色漂移。具象级不可省
+3. 重画某格时，优先**加强具象形态级**（把比例、肤色写得更死），不要只重复抽象级
+4. 同一系列/连载复用同一张角色卡，只在用户明确要求时调整
 
 模板见 `references/character-card-template.md`。
 
 ### 阶段 4：分镜脚本
 
 1. 按知识卡铺格：第 1 格悬念钩子，中间格每格只讲透一个知识点，末格总结升华
-2. 逐格写清三要素：**画面描述**（构图、角色动作表情、场景）、**旁白**（可选）、**气泡对话**（谁在说什么）
+2. 逐格写清：**画面描述**、**旁白**（可选）、**气泡**（谁在说什么）、**文字卡**（放不下气泡的长句）
 3. 标注每格景别（特写/中景/全景）与情绪，保证起承转合有节奏
-4. 气泡文字口语化、每句不超过 20 字
+4. 气泡写人话，一句能听懂，不要为了省字砍成「拦住了」这种残句。常见是一行 8–14 字，或两行短句。数字、来源和解释性长句放文字卡，不塞进气泡
+5. 精确数量、精确标签、精确布局不要只交给出图模型，标成后期文字层或叠层
 
 模板见 `references/storyboard-template.md`。脚本先给用户确认，确认后再出图。
 
 ### 阶段 5：逐格出图
 
-1. 每格提示词 = 画风描述词 + 角色卡锚定词 + 本格画面描述
+1. 每格提示词 = 画风描述词 + 两级锚定词 + 本格画面描述
 2. 多角色同框时，在每个角色名前重复其锚定特征（如「橙色连帽衫的讲解员」）
-3. 气泡和标题一律留空：提示词写「blank white speech bubble」「empty title banner」，不让模型渲染任何文字
-4. 逐格生成、逐格自检：**主角外形与角色卡一致吗？构图服务本格知识点吗？情绪与分镜标注一致吗？** 任一不符重画该格
+3. 气泡和标题一律留空，并且气泡要画大：提示词写 `a large wide blank white speech bubble, inner width at least 40% of the panel`、`empty title banner`，不让模型渲染任何文字。只写 blank speech bubble 时，模型常只给约 100px 内宽——那是气泡太小，不是文案必须压到 5 个字
+4. **每格独立输出目录**：写图前先建立 `panels/p01/`、`panels/p02/` …。生成工具的文件名常为「提示词前缀 + 秒级时间戳」，同秒且前缀相同会**静默覆盖、不报错**
+5. **禁止并行出图**。并发会让 `output_dir` 互相覆盖。逐格串行；每格完成后立刻改名为该目录下的 `panel-0N.png`
+6. **出图后立刻核对**：该格文件存在、尺寸正常、md5 与已有格不同。缺图立即补画，不要等到合成才发现
+7. 逐格自检：**主角外形与角色卡一致吗？构图服务本格知识点吗？情绪与分镜标注一致吗？物体语义有没有画反（熄灭画成按下、数量画少）？** 任一不符，加强具象形态或正向视觉描述后重画该格
 
-### 阶段 6：文字后期合成
+### 阶段 6：文字后期合成（必须用脚本，不能靠手工目测）
 
-1. 按分镜脚本在留空的气泡/标题位精准填字（绘图工具或图片编辑）
-2. 字体统一、字号分级（标题 > 气泡 > 旁白），中文清晰无错字
-3. 合成后整组复查：文字与画面指向一致、没有错格
+使用本 skill 自带脚本，不要另写一套，也不要靠「绘图工具或图片编辑」：
+
+1. **定位**：`python tools/detect_regions.py panels/p01/panel-01.png`。脚本降采样后做连通域，找出被轮廓封闭的近白区域，排除贴边大背景，输出包围盒。不要目测坐标
+2. 把分镜文案写成 `layout.json`（字段见 `tools/compose.py` 文件头），气泡用 `kind: bubble`，长句用 `kind: card`
+3. **合成**：`python tools/compose.py layout.json`。脚本负责：
+   - 中文禁则折行（`，。？！、；：）】》` 等闭标点不得在行首）
+   - 显式换行不再被拆开（段落数不增加）
+   - 字号从大到小自适应进包围盒
+   - 可选右下角水印：`watermark.mode = fade-bottom`，用 `crop` 先裁掉水印条，再用 `pixels` 把新的底边淡出到背景色
+4. 字体默认 Windows `C:/Windows/Fonts/msyhbd.ttc`（标题/气泡）与 `msyh.ttc`（正文）；其他系统用 `layout.json` 的 `fonts` 指向一套中文字体
+5. **气泡容量按实测包围盒，不按字数上限。** 竖版 1080 宽上气泡字号不低于约 32px。装得下就进气泡；装不下时 `compose.py` 会报错退出，把整句改到文字卡，或重画更大的气泡。禁止把字缩到手机上看不清
+6. **水印**：生成图右下角可能带合规水印（法规强制，不可关闭）。出图时底部留可裁切余量；合成时用淡出，不要试图「关掉水印」
+7. 合成后整组复查：文字与画面指向一致、没有错格、没有孤行标点
 
 ## 交付物
 
-- `knowledge-card.md`（知识卡）、`characters.md`（角色卡）、`storyboard.md`（分镜脚本）
-- `panels/panel-01.png …`（逐格图）、`comic-final.png`（合成成品）
-- 发布前必须过一遍 `references/quality-checklist.md` 的「装读者四查」
+- `knowledge-card.md`（含冲突取舍）、`characters.md`、`storyboard.md`
+- `panels/p0N/panel-0N.png`（逐格原图）、`output/panel-0N-text.png`、`output/comic-final.png`
+- `delivery-report.md`：按 `references/delivery-report-template.md` **四查逐条**写结论。没有这份文件不算交付
+- 发布前必须过 `references/quality-checklist.md`
 
 ## 红线（防偷懒反例）
 
 > 以下都是真实会翻车的点。每条写了「这样做的后果」，理解为什么，而不是机械遵守。
 
 1. **跳过事实核查直接写脚本**：漫画越好看传播越广，错误知识被放大得越狠——核查不通过的知识点一律不进脚本，画面朴素可以救，知识错了救不了
-2. **不建角色卡、逐格直接写画面**：图像模型每次出图都是重新想象，第 3 格起主角就会悄悄换脸换衣，读者认不出是同一个角色，连载直接崩盘——锚定词必须原样嵌入每一格
+2. **只写抽象风格词、不写具象形态**：`chibi 2-head-tall` 单独放，第 3 格就会变成细长身材或换肤色——两级锚定词必须原样嵌入每一格；重画时加强具象级
 3. **让图像模型渲染文字**：中文进图就是乱码错字，且无法无痕修复只能整格重画——所有文字一律后期合成，模型只画空白气泡
-4. **一格塞多个知识点、对白写成长句**：读者视线不知道该落在哪，条漫划走率飙升——宁可拆格加页，不用小字号硬塞
-5. **检索不到就含糊带过**：「科学家认为」式泛话是在掩盖偷懒，也是在埋事实错误的雷——缺口要点名，把决定权交还给用户
+4. **为了塞进小气泡把话说残，或把字缩到看不清**：读者看不懂这格在讲什么——先把空白气泡画大；一句口语进气泡，解释放文字卡；装不下就换更大的气泡或改文字卡，不要砍成几个字的残句，也不要一格塞两个知识点
+5. **检索不到就含糊带过，或把打架的数字拼在一起**：「科学家认为」和混口径一样会埋雷——缺口要点名；冲突要单源、写理由、查同一机构是否自洽
+6. **并行出图或共用输出目录**：静默丢图且零报错，合格稿会被后一次覆盖——一格一目录、串行、出图后对数量和 md5
 
 ## 边界
 
 - 不编造事实：检索不到依据的知识点直接告知用户无法确认
 - 不替用户发布：只产出图片与文案，发布前留人工复核环节
 - 医疗、法律等强专业选题：漫画中必须保留「科普仅供参考」提示
+- 锚定只能降低漂移，不能消除；超过约 20 格还要求角色像素级一致时，告知用户需要参考图或手绘/矢量，不要假装锚定够用
